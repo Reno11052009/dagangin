@@ -11,15 +11,22 @@ class Product extends Model
 
     protected $primaryKey = 'uid';
 
-    protected $fillable = ['store_uid', 'category_uid', 'name', 'description', 'price', 'stock', 'image'];
+    protected $fillable = ['store_uid', 'category_uid', 'name', 'description', 'price', 'stock', 'image', 'images', 'views'];
+
+    protected function casts(): array
+    {
+        return [
+            'images' => 'array',
+        ];
+    }
 
     public function store()
     {
-        return $this->belongsTo(Store::class);
+        return $this->belongsTo(Store::class, 'store_uid', 'uid');
     }
 
     public function category()
     {
-        return $this->belongsTo(Category::class);
+        return $this->belongsTo(Category::class, 'category_uid', 'uid');
     }
 }

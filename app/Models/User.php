@@ -10,13 +10,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Laravel\Sanctum\HasApiTokens;
 
 #[Fillable(['name', 'email', 'password'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasUuids, HasFactory, Notifiable;
+    use HasApiTokens, HasUuids, HasFactory, Notifiable;
 
     protected $primaryKey = 'uid';
 
@@ -35,16 +36,16 @@ class User extends Authenticatable
 
     public function store()
     {
-        return $this->hasOne(Store::class);
+        return $this->hasOne(Store::class, 'user_uid', 'uid');
     }
 
     public function cart()
     {
-        return $this->hasOne(Cart::class);
+        return $this->hasOne(Cart::class, 'user_uid', 'uid');
     }
 
     public function orders()
     {
-        return $this->hasMany(Order::class);
+        return $this->hasMany(Order::class, 'user_uid', 'uid');
     }
 }

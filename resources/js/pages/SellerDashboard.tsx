@@ -30,6 +30,7 @@ export default function SellerDashboard({ token }: SellerDashboardProps) {
         stock: '',
         category_uid: ''
     });
+    const [productImages, setProductImages] = useState<File[]>([]);
 
     useEffect(() => {
         if (!token) return;
@@ -79,11 +80,26 @@ export default function SellerDashboard({ token }: SellerDashboardProps) {
     const handleAddProduct = (e: React.FormEvent) => {
         e.preventDefault();
         setIsAddingProduct(true);
-        axios.post('/api/stores/products', newProduct)
+        
+        const formData = new FormData();
+        formData.append('name', newProduct.name);
+        formData.append('description', newProduct.description);
+        formData.append('price', newProduct.price);
+        formData.append('stock', newProduct.stock);
+        formData.append('category_uid', newProduct.category_uid);
+        
+        productImages.forEach(file => {
+            formData.append('images[]', file);
+        });
+
+        axios.post('/api/stores/products', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        })
             .then(res => {
                 Swal.fire('Sukses', 'Produk berhasil ditambahkan!', 'success');
                 setShowAddProduct(false);
                 setNewProduct({ name: '', description: '', price: '', stock: '', category_uid: '' });
+                setProductImages([]);
                 fetchStore();
             })
             .catch(err => {
@@ -246,6 +262,17 @@ export default function SellerDashboard({ token }: SellerDashboardProps) {
                                     onChange={e => setNewProduct({...newProduct, stock: e.target.value})}
                                     className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                 />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Gambar Produk</label>
+                                <input 
+                                    type="file" multiple accept="image/*"
+                                    onChange={e => setProductImages(Array.from(e.target.files || []))}
+                                    className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                />
+                                {productImages.length > 0 && (
+                                    <div className="text-xs text-slate-500 mt-1">{productImages.length} gambar dipilih</div>
+                                )}
                             </div>
                             <div className="pt-4">
                                 <button 

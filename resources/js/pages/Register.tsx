@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import { UserPlus, Mail, Lock, User, Store } from 'lucide-react';
 
 interface AuthProps {
     setToken: (token: string) => void;
@@ -45,80 +46,85 @@ function Register({ setToken }: AuthProps) {
             });
     };
 
+    const fields = [
+        { name: 'name', label: 'Nama Lengkap', type: 'text', icon: <User size={16} />, placeholder: 'John Doe' },
+        { name: 'email', label: 'Alamat Email', type: 'email', icon: <Mail size={16} />, placeholder: 'nama@email.com' },
+        { name: 'password', label: 'Password', type: 'password', icon: <Lock size={16} />, placeholder: 'Min. 8 karakter' },
+        { name: 'password_confirmation', label: 'Konfirmasi Password', type: 'password', icon: <Lock size={16} />, placeholder: 'Ketik ulang password' },
+    ];
+
     return (
-        <div className="flex justify-center items-center py-10">
-            <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100 w-full max-w-md">
-                <h1 className="text-2xl font-bold text-slate-800 mb-6 text-center">Daftar Dagangin</h1>
-                
-                {errors?.general && (
-                    <div className="bg-red-50 text-red-500 p-3 rounded-lg text-sm mb-4 border border-red-100">
-                        {errors.general[0]}
-                    </div>
-                )}
+        <div className="min-h-[calc(100vh-80px)] flex items-center justify-center py-12 px-4">
+            <div className="w-full max-w-md">
+                <div className="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
+                    {/* Top gradient accent */}
+                    <div className="h-1.5 bg-gradient-to-r from-violet-500 via-purple-500 to-pink-500" />
 
-                <form onSubmit={handleRegister} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Nama Lengkap</label>
-                        <input 
-                            type="text" 
-                            name="name"
-                            required
-                            className="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition"
-                            // placeholder="John Doe"
-                            value={formData.name}
-                            onChange={handleChange}
-                        />
-                        {errors?.name && <span className="text-red-500 text-xs mt-1">{errors.name[0]}</span>}
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
-                        <input 
-                            type="email" 
-                            name="email"
-                            required
-                            className="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition"
-                            // placeholder="nama@email.com"
-                            value={formData.email}
-                            onChange={handleChange}
-                        />
-                        {errors?.email && <span className="text-red-500 text-xs mt-1">{errors.email[0]}</span>}
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
-                        <input 
-                            type="password" 
-                            name="password"
-                            required
-                            className="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition"
-                            placeholder="Min. 8 karakter"
-                            value={formData.password}
-                            onChange={handleChange}
-                        />
-                        {errors?.password && <span className="text-red-500 text-xs mt-1">{errors.password[0]}</span>}
-                    </div>
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Konfirmasi Password</label>
-                        <input 
-                            type="password" 
-                            name="password_confirmation"
-                            required
-                            className="w-full border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-600 focus:border-transparent outline-none transition"
-                            placeholder="Ketik ulang password"
-                            value={formData.password_confirmation}
-                            onChange={handleChange}
-                        />
-                    </div>
-                    <button 
-                        type="submit" 
-                        disabled={loading}
-                        className="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition shadow-md disabled:bg-blue-400 mt-2"
-                    >
-                        {loading ? 'Memproses...' : 'Daftar Sekarang'}
-                    </button>
-                </form>
+                    <div className="p-8">
+                        {/* Logo mark */}
+                        <div className="text-center mb-8">
+                            <div className="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl shadow-lg mb-4">
+                                <Store size={26} className="text-white" />
+                            </div>
+                            <h1 className="text-2xl font-extrabold text-slate-800">Buat Akun Baru</h1>
+                            <p className="text-slate-500 text-sm mt-1">Bergabung bersama ribuan pengguna Dagangin</p>
+                        </div>
 
-                <div className="mt-6 text-center text-sm text-slate-500">
-                    Sudah punya akun? <Link to="/login" className="text-blue-600 font-medium hover:underline">Masuk di sini</Link>
+                        {errors?.general && (
+                            <div className="bg-red-50 border border-red-100 text-red-600 p-3.5 rounded-xl text-sm mb-5 flex items-start gap-2">
+                                <span className="mt-0.5">⚠</span>
+                                {errors.general[0]}
+                            </div>
+                        )}
+
+                        <form onSubmit={handleRegister} className="space-y-4">
+                            {fields.map(field => (
+                                <div key={field.name}>
+                                    <label className="block text-sm font-semibold text-slate-700 mb-2">{field.label}</label>
+                                    <div className="relative">
+                                        <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400">{field.icon}</span>
+                                        <input
+                                            type={field.type}
+                                            name={field.name}
+                                            required
+                                            placeholder={field.placeholder}
+                                            className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all input-glow"
+                                            value={(formData as any)[field.name]}
+                                            onChange={handleChange}
+                                        />
+                                    </div>
+                                    {errors?.[field.name] && (
+                                        <span className="text-red-500 text-xs mt-1 flex items-center gap-1">
+                                            ⚠ {errors[field.name][0]}
+                                        </span>
+                                    )}
+                                </div>
+                            ))}
+
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="w-full bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white font-bold py-3.5 px-4 rounded-xl transition-all duration-300 shadow-lg shadow-violet-200 hover:shadow-xl hover:shadow-violet-200 hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0 flex items-center justify-center gap-2 mt-2"
+                            >
+                                {loading ? (
+                                    <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                    </svg>
+                                ) : (
+                                    <UserPlus size={17} />
+                                )}
+                                {loading ? 'Membuat Akun...' : 'Daftar Sekarang'}
+                            </button>
+                        </form>
+
+                        <div className="mt-6 pt-6 border-t border-slate-100 text-center text-sm text-slate-500">
+                            Sudah punya akun?{' '}
+                            <Link to="/login" className="text-indigo-600 font-semibold hover:text-indigo-700 transition">
+                                Masuk di sini →
+                            </Link>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

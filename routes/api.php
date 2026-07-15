@@ -1,6 +1,14 @@
 <?php
 
+use App\Http\Controllers\Api\CartController;
+use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\ChatController;
+use App\Http\Controllers\Api\CheckoutController;
+use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\StoreController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -29,7 +37,7 @@ Route::post('/register', function (Request $request) {
     $user = \App\Models\User::create([
         'name' => $request->name,
         'email' => $request->email,
-        'password' => \Illuminate\Support\Facades\Hash::make($request->password),
+        'password' => Hash::make($request->password),
     ]);
 
     $token = $user->createToken('auth_token')->plainTextToken;
@@ -47,18 +55,28 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     // Store / Seller API
-    Route::get('/my-store', [\App\Http\Controllers\Api\StoreController::class, 'myStore']);
-    Route::post('/stores', [\App\Http\Controllers\Api\StoreController::class, 'store']);
-    Route::post('/stores/products', [\App\Http\Controllers\Api\StoreController::class, 'addProduct']);
+    Route::get('/my-store', [StoreController::class, 'myStore']);
+    Route::post('/stores', [StoreController::class, 'store']);
+    Route::post('/stores/products', [StoreController::class, 'addProduct']);
 
     // Cart API
-    Route::get('/cart', [\App\Http\Controllers\Api\CartController::class, 'index']);
-    Route::post('/cart/items', [\App\Http\Controllers\Api\CartController::class, 'addItem']);
-    Route::delete('/cart/items/{id}', [\App\Http\Controllers\Api\CartController::class, 'removeItem']);
+    Route::get('/cart', [CartController::class, 'index']);
+    Route::post('/cart/items', [CartController::class, 'addItem']);
+    Route::delete('/cart/items/{id}', [CartController::class, 'removeItem']);
 
     // Checkout API
-    Route::post('/checkout', [\App\Http\Controllers\Api\CheckoutController::class, 'process']);
+    Route::post('/checkout', [CheckoutController::class, 'process']);
+
+    // Notifications
+    Route::get('/notifications', [NotificationController::class, 'index']);
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead']);
+
+    // Chat API
+    Route::get('/conversations', [ChatController::class, 'index']);
+    Route::post('/conversations', [ChatController::class, 'store']);
+    Route::get('/conversations/{id}/messages', [ChatController::class, 'getMessages']);
+    Route::post('/conversations/{id}/messages', [ChatController::class, 'sendMessage']);
 });
 
-Route::apiResource('categories', \App\Http\Controllers\Api\CategoryController::class)->only(['index', 'show']);
-Route::apiResource('products', \App\Http\Controllers\Api\ProductController::class)->only(['index', 'show']);
+Route::apiResource('categories', CategoryController::class)->only(['index', 'show']);
+Route::apiResource('products', ProductController::class)->only(['index', 'show']);

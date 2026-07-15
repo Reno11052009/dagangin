@@ -33,7 +33,7 @@ class StoreController extends Controller
 
     public function addProduct(Request $request)
     {
-        $store = $request->user()->store;
+        $store = $request->user()->store()->first();
         if (!$store) {
             return response()->json(['message' => 'Store not found'], 404);
         }
@@ -44,9 +44,26 @@ class StoreController extends Controller
             'description' => 'required|string',
             'price' => 'required|integer|min:0',
             'stock' => 'required|integer|min:0',
+            'images' => 'nullable|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:2048'
         ]);
 
-        $product = $store->products()->create($request->all());
+        $data = $request->except('images');
+        
+        $imagePaths = [];
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $file) {
+                $path = $file->store('products', 'public');
+                $imagePaths[] = '/storage/' . $path;
+            }
+            $data['images'] = $imagePaths;
+            // set first image as main image for backward compatibility
+            if (count($imagePaths) > 0) {
+                $data['image'] = $imagePaths[0];
+            }
+        }
+
+        $product = $store->products()->create($data);
         return response()->json($product, 201);
     }
 }
