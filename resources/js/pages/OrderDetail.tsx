@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
-import { ArrowLeft, Printer, MapPin, Package, Clock, CheckCircle, XCircle, CreditCard, Truck } from 'lucide-react';
+import { ArrowLeft, Printer, MapPin, Package, Clock, CheckCircle, XCircle, CreditCard, Truck, AlertTriangle } from 'lucide-react';
 import { Order } from '../types';
 import Button from '../components/Button';
 
@@ -189,12 +189,18 @@ export function OrderDetail() {
                         </div>
                         
                         {order.status === 'pending' && order.snap_token && (
-                            <button
-                                onClick={handlePayment}
-                                className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg hover:shadow-xl active:scale-95 print:hidden"
-                            >
-                                <CreditCard size={18} /> Lanjutkan ke Pembayaran
-                            </button>
+                            <div className="flex flex-col gap-3">
+                                <div className="p-3 bg-amber-50 border border-amber-200 text-amber-700 text-xs rounded-xl flex gap-2 items-start print:hidden">
+                                    <AlertTriangle size={16} className="mt-0.5 shrink-0" />
+                                    <p>Perhatian: Sistem pembayaran saat ini menggunakan mode <strong>Sandbox (Testing)</strong>. Jangan gunakan uang atau data kartu kredit asli Anda.</p>
+                                </div>
+                                <button
+                                    onClick={handlePayment}
+                                    className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg hover:shadow-xl active:scale-95 print:hidden"
+                                >
+                                    <CreditCard size={18} /> Lanjutkan ke Pembayaran
+                                </button>
+                            </div>
                         )}
                     </div>
                 </div>
