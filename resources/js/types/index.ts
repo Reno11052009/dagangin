@@ -83,3 +83,26 @@ export interface Message {
     created_at: string;
     sender?: User;
 }
+
+export interface OrderItem {
+    uid: string;
+    order_uid: string;
+    product_uid: string;
+    quantity: number;
+    price: number;
+    product?: Product;
+}
+
+export interface Order {
+    uid: string;
+    user_uid: string;
+    total_price: number;
+    shipping_cost?: number;
+    courier?: string;
+    status: string;
+    address: string;
+    snap_token?: string;
+    created_at: string;
+    updated_at: string;
+    items?: OrderItem[];
+}

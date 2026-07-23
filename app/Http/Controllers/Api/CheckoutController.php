@@ -17,16 +17,22 @@ class CheckoutController extends Controller
         }
 
         $request->validate([
-            'address' => 'required|string'
+            'address' => 'required|string',
+            'shipping_cost' => 'required|numeric',
+            'courier' => 'required|string'
         ]);
 
         $totalPrice = $cart->items->sum(function($item) {
             return $item->quantity * $item->product->price;
         });
 
+        $grossAmount = $totalPrice + $request->shipping_cost;
+
         $order = \App\Models\Order::create([
             'user_uid' => $user->uid,
-            'total_price' => $totalPrice,
+            'total_price' => $grossAmount,
+            'shipping_cost' => $request->shipping_cost,
+            'courier' => $request->courier,
             'address' => $request->address,
             'status' => 'pending'
         ]);
@@ -49,12 +55,15 @@ class CheckoutController extends Controller
         $params = array(
             'transaction_details' => array(
                 'order_id' => $order->uid . '-' . time(), // Unique order id
-                'gross_amount' => $totalPrice,
+                'gross_amount' => $grossAmount,
             ),
             'customer_details' => array(
                 'first_name' => $user->name,
                 'email' => $user->email,
             ),
+            'callbacks' => array(
+                'finish' => url('/orders/' . $order->uid),
+            )
         );
 
         try {

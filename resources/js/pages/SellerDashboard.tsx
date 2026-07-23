@@ -17,6 +17,13 @@ export default function SellerDashboard({ token }: SellerDashboardProps) {
     // Create store form state
     const [storeName, setStoreName] = useState('');
     const [storeDesc, setStoreDesc] = useState('');
+    const [provinces, setProvinces] = useState<any[]>([]);
+    const [cities, setCities] = useState<any[]>([]);
+    const [subdistricts, setSubdistricts] = useState<any[]>([]);
+    const [selectedProvince, setSelectedProvince] = useState('');
+    const [selectedCity, setSelectedCity] = useState('');
+    const [selectedSubdistrict, setSelectedSubdistrict] = useState('');
+    const [address, setAddress] = useState('');
     const [isCreatingStore, setIsCreatingStore] = useState(false);
     
     // Add product form state
@@ -36,7 +43,33 @@ export default function SellerDashboard({ token }: SellerDashboardProps) {
         if (!token) return;
         fetchStore();
         fetchCategories();
+        
+        axios.get('/api/shipping/provinces')
+            .then(res => setProvinces(res.data))
+            .catch(console.error);
     }, [token]);
+
+    useEffect(() => {
+        if (selectedProvince) {
+            setCities([]);
+            setSelectedCity('');
+            setSubdistricts([]);
+            setSelectedSubdistrict('');
+            axios.get(`/api/shipping/cities/${selectedProvince}`)
+                .then(res => setCities(res.data))
+                .catch(console.error);
+        }
+    }, [selectedProvince]);
+
+    useEffect(() => {
+        if (selectedCity) {
+            setSubdistricts([]);
+            setSelectedSubdistrict('');
+            axios.get(`/api/shipping/subdistricts/${selectedCity}`)
+                .then(res => setSubdistricts(res.data))
+                .catch(console.error);
+        }
+    }, [selectedCity]);
 
     const fetchStore = () => {
         setLoadingStore(true);
@@ -65,8 +98,18 @@ export default function SellerDashboard({ token }: SellerDashboardProps) {
 
     const handleCreateStore = (e: React.FormEvent) => {
         e.preventDefault();
+        if (!selectedProvince || !selectedCity || !selectedSubdistrict || !address) {
+            return Swal.fire('Peringatan', 'Lengkapi semua data alamat toko', 'warning');
+        }
         setIsCreatingStore(true);
-        axios.post('/api/stores', { name: storeName, description: storeDesc })
+        axios.post('/api/stores', { 
+            name: storeName, 
+            description: storeDesc,
+            province_id: selectedProvince,
+            city_id: selectedCity,
+            subdistrict_id: selectedSubdistrict,
+            address: address
+        })
             .then(res => {
                 Swal.fire('Sukses', 'Toko berhasil dibuat!', 'success');
                 fetchStore();
@@ -144,6 +187,63 @@ export default function SellerDashboard({ token }: SellerDashboardProps) {
                                 placeholder="Cth: Dagangin Official Store"
                             />
                         </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Provinsi</label>
+                                <select 
+                                    required
+                                    className="w-full border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none px-4 py-2 border"
+                                    value={selectedProvince}
+                                    onChange={e => setSelectedProvince(e.target.value)}
+                                >
+                                    <option value="">Pilih Provinsi</option>
+                                    {provinces.map(p => (
+                                        <option key={p.province_id} value={p.province_id}>{p.province}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Kota/Kabupaten</label>
+                                <select 
+                                    required
+                                    className="w-full border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none px-4 py-2 border disabled:bg-slate-50"
+                                    value={selectedCity}
+                                    onChange={e => setSelectedCity(e.target.value)}
+                                    disabled={!selectedProvince || cities.length === 0}
+                                >
+                                    <option value="">Pilih Kota</option>
+                                    {cities.map(c => (
+                                        <option key={c.city_id} value={c.city_id}>{c.type} {c.city_name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Kecamatan</label>
+                                <select 
+                                    required
+                                    className="w-full border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none px-4 py-2 border disabled:bg-slate-50"
+                                    value={selectedSubdistrict}
+                                    onChange={e => setSelectedSubdistrict(e.target.value)}
+                                    disabled={!selectedCity || subdistricts.length === 0}
+                                >
+                                    <option value="">Pilih Kecamatan</option>
+                                    {subdistricts.map(s => (
+                                        <option key={s.subdistrict_id} value={s.subdistrict_id}>{s.subdistrict_name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700 mb-1">Alamat Lengkap</label>
+                            <textarea 
+                                required
+                                value={address}
+                                onChange={e => setAddress(e.target.value)}
+                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                rows={2}
+                                placeholder="Jalan, Gedung, No, RT/RW..."
+                            />
+                        </div>
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1">Deskripsi Toko</label>
                             <textarea 
@@ -151,13 +251,13 @@ export default function SellerDashboard({ token }: SellerDashboardProps) {
                                 value={storeDesc}
                                 onChange={e => setStoreDesc(e.target.value)}
                                 className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                                rows={4}
+                                rows={2}
                                 placeholder="Jelaskan secara singkat tentang toko Anda..."
                             />
                         </div>
                         <button 
                             type="submit" 
-                            disabled={isCreatingStore}
+                            disabled={isCreatingStore || !selectedProvince || !selectedCity || !selectedSubdistrict || !address}
                             className="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-xl hover:bg-blue-700 transition disabled:opacity-70 flex justify-center items-center gap-2"
                         >
                             {isCreatingStore ? <Loader2 size={20} className="animate-spin" /> : <Save size={20} />}

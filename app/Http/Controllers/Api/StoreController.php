@@ -20,14 +20,18 @@ class StoreController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string'
+            'description' => 'nullable|string',
+            'province_id' => 'required|string',
+            'city_id' => 'required|string',
+            'subdistrict_id' => 'required|string',
+            'address' => 'required|string'
         ]);
 
         if ($request->user()->store) {
             return response()->json(['message' => 'User already has a store'], 400);
         }
 
-        $store = $request->user()->store()->create($request->only(['name', 'description']));
+        $store = $request->user()->store()->create($request->only(['name', 'description', 'province_id', 'city_id', 'subdistrict_id', 'address']));
         return response()->json($store, 201);
     }
 

@@ -24,7 +24,7 @@
 
 | Layer | Technology | Version |
 |---|---|---|
-| Backend | Laravel | 12 |
+| Backend | Laravel | 13 |
 | Frontend | React | 19 |
 | Build Tool | Vite + laravel-vite-plugin | 8.x |
 | Language | TypeScript | 7.x |
@@ -41,7 +41,7 @@
 
 ## 📋 Requirements
 
-- **PHP** >= 8.2
+- **PHP** 8.3
 - **Composer**
 - **Node.js** & **npm**
 - **PostgreSQL**

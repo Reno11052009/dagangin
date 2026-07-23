@@ -49,8 +49,8 @@ function ProductDetail({ onAddToCart }: ProductDetailProps) {
     const handleChatPenjual = async () => {
         if (!product || !product.store) return;
         try {
-            await axios.post('/api/conversations', { store_uid: product.store.uid });
-            navigate('/chat');
+            const res = await axios.post('/api/conversations', { store_uid: product.store.uid });
+            navigate(`/chat?conv_id=${res.data.uid}`);
         } catch (err: any) {
             console.error(err);
             if (err.response?.status === 401) navigate('/login');

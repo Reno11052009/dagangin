@@ -9,7 +9,7 @@ class CartController extends Controller
 {
     public function index(Request $request)
     {
-        $cart = $request->user()->cart()->with('items.product')->firstOrCreate([]);
+        $cart = $request->user()->cart()->with('items.product.store')->firstOrCreate([]);
         return response()->json($cart);
     }
 

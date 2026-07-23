@@ -3,6 +3,7 @@ import { Trash2, CreditCard, X, Loader2, ShoppingCart, ShoppingBag } from 'lucid
 import Swal from 'sweetalert2';
 import { CartItemType } from '../types';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 interface CartProps {
     isOpen: boolean;
@@ -12,7 +13,7 @@ interface CartProps {
 }
 
 function Cart({ isOpen, onClose, cartItems = [], fetchCart }: CartProps) {
-    const [isCheckingOut, setIsCheckingOut] = useState<boolean>(false);
+    const navigate = useNavigate();
     const total = cartItems.reduce((acc, item) => acc + ((item.product?.price || 0) * item.quantity), 0);
 
     const handleRemove = (uid: string) => {
@@ -22,26 +23,8 @@ function Cart({ isOpen, onClose, cartItems = [], fetchCart }: CartProps) {
     };
 
     const handleCheckout = () => {
-        setIsCheckingOut(true);
-        axios.post('/api/checkout', { address: 'Alamat Testing 123 (Silakan disesuaikan nanti)' })
-            .then(res => {
-                setIsCheckingOut(false);
-                const snapToken = res.data.snap_token;
-                if (window.snap) {
-                    window.snap.pay(snapToken, {
-                        onSuccess: () => { Swal.fire('Berhasil', 'Pembayaran sukses!', 'success'); fetchCart(); onClose(); },
-                        onPending: () => Swal.fire('Info', 'Menunggu pembayaran!', 'info'),
-                        onError: () => { Swal.fire('Error', 'Pembayaran gagal!', 'error'); setIsCheckingOut(false); },
-                        onClose: () => setIsCheckingOut(false)
-                    });
-                } else {
-                    Swal.fire('Error', 'Midtrans Snap tidak termuat.', 'error');
-                }
-            })
-            .catch(err => {
-                setIsCheckingOut(false);
-                Swal.fire('Error', 'Checkout gagal: ' + (err.response?.data?.message || err.message), 'error');
-            });
+        onClose();
+        navigate('/checkout');
     };
 
     if (!isOpen) return null;
@@ -133,11 +116,10 @@ function Cart({ isOpen, onClose, cartItems = [], fetchCart }: CartProps) {
                         </div>
                         <button
                             onClick={handleCheckout}
-                            disabled={isCheckingOut}
-                            className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold py-3.5 px-6 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-200 hover:shadow-xl hover:shadow-indigo-200 hover:-translate-y-0.5 disabled:opacity-60 disabled:translate-y-0 active:scale-95"
+                            className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold py-3.5 px-6 rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-200 hover:shadow-xl hover:shadow-indigo-200 hover:-translate-y-0.5 active:scale-95"
                         >
-                            {isCheckingOut ? <Loader2 size={18} className="animate-spin" /> : <CreditCard size={18} />}
-                            {isCheckingOut ? 'Memproses...' : 'Bayar Sekarang'}
+                            <CreditCard size={18} />
+                            Lanjut ke Checkout
                         </button>
                     </div>
                 )}

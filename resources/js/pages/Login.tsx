@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import { LogIn, Mail, Lock, Store } from 'lucide-react';
+import { LogIn, Mail, Lock, Store, Eye, EyeOff } from 'lucide-react';
+import Input from '../components/Input';
+import Button from '../components/Button';
 
 interface AuthProps {
     setToken: (token: string) => void;
@@ -10,6 +12,7 @@ interface AuthProps {
 function Login({ setToken }: AuthProps) {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
+    const [showPassword, setShowPassword] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
@@ -60,50 +63,40 @@ function Login({ setToken }: AuthProps) {
                         )}
 
                         <form onSubmit={handleLogin} className="space-y-5">
-                            <div>
-                                <label className="block text-sm font-semibold text-slate-700 mb-2">Alamat Email</label>
-                                <div className="relative">
-                                    <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                                    <input
-                                        type="email"
-                                        required
-                                        placeholder="nama@email.com"
-                                        className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all input-glow"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                    />
-                                </div>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-semibold text-slate-700 mb-2">Password</label>
-                                <div className="relative">
-                                    <Lock size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                                    <input
-                                        type="password"
-                                        required
-                                        placeholder="Min. 8 karakter"
-                                        className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all input-glow"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
-                                    />
-                                </div>
-                            </div>
+                            <Input
+                                label="Alamat Email"
+                                type="email"
+                                required
+                                placeholder="nama@email.com"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                leftIcon={<Mail size={16} />}
+                            />
+                            
+                            <Input
+                                label="Password"
+                                type={showPassword ? "text" : "password"}
+                                required
+                                placeholder="Min. 8 karakter"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                leftIcon={<Lock size={16} />}
+                                rightIcon={
+                                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="hover:text-slate-600 transition-colors">
+                                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                    </button>
+                                }
+                            />
 
-                            <button
+                            <Button
                                 type="submit"
-                                disabled={loading}
-                                className="w-full bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold py-3.5 px-4 rounded-xl transition-all duration-300 shadow-lg shadow-indigo-200 hover:shadow-xl hover:shadow-indigo-200 hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed disabled:translate-y-0 flex items-center justify-center gap-2 mt-2"
+                                fullWidth
+                                isLoading={loading}
+                                leftIcon={<LogIn size={17} />}
+                                className="mt-2"
                             >
-                                {loading ? (
-                                    <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                                    </svg>
-                                ) : (
-                                    <LogIn size={17} />
-                                )}
-                                {loading ? 'Memproses...' : 'Masuk Sekarang'}
-                            </button>
+                                Masuk Sekarang
+                            </Button>
                         </form>
 
                         <div className="mt-6 pt-6 border-t border-slate-100 text-center text-sm text-slate-500">

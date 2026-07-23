@@ -9,7 +9,10 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import SellerDashboard from './pages/SellerDashboard';
 import Chat from './pages/Chat';
-import { ShoppingCart, LogIn, LogOut, UserPlus, MessageSquare, Bell, Store, Menu, X, Search } from 'lucide-react';
+import OrderHistory from './pages/OrderHistory';
+import OrderDetail from './pages/OrderDetail';
+import Checkout from './pages/Checkout';
+import { ShoppingCart, LogIn, LogOut, UserPlus, MessageSquare, Bell, Store, Menu, X, Search, PackageOpen } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { CartItemType, NotificationType } from './types';
 import Echo from 'laravel-echo';
@@ -86,6 +89,7 @@ function App() {
     const [notifications, setNotifications] = useState<NotificationType[]>([]);
     const [isNotifOpen, setIsNotifOpen] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [hasStore, setHasStore] = useState(false);
 
     useEffect(() => {
         if (token) {
@@ -97,6 +101,7 @@ function App() {
             setCartItems([]);
             setUserUid(null);
             setNotifications([]);
+            setHasStore(false);
         }
     }, [token]);
 
@@ -104,6 +109,7 @@ function App() {
         axios.get('/api/user')
             .then(res => {
                 setUserUid(res.data.uid);
+                setHasStore(!!res.data.store);
                 fetchNotifications();
             })
             .catch(console.error);
@@ -194,8 +200,13 @@ function App() {
                                 {/* Desktop Nav */}
                                 <nav className="hidden md:flex items-center gap-6">
                                     <NavLink to="/">Beranda</NavLink>
-                                    <NavLink to="/seller">Toko Saya</NavLink>
-                                    {token && <NavLink to="/chat"><MessageSquare size={15} /> Chat</NavLink>}
+                                    <NavLink to="/seller">{hasStore ? 'Toko Saya' : 'Buat Toko'}</NavLink>
+                                    {token && (
+                                        <>
+                                            <NavLink to="/orders"><PackageOpen size={15} /> Pesanan Saya</NavLink>
+                                            <NavLink to="/chat"><MessageSquare size={15} /> Chat</NavLink>
+                                        </>
+                                    )}
                                 </nav>
 
                                 {/* Search bar - only on home page */}
@@ -243,7 +254,7 @@ function App() {
                                                                         {!n.read_at && (
                                                                             <div className="flex gap-3">
                                                                                 {n.data?.conversation_uid && (
-                                                                                    <Link to="/chat" onClick={() => markAsRead(n.id)} className="text-[11px] text-indigo-600 font-semibold hover:underline">Balas →</Link>
+                                                                                    <Link to={`/chat?conv_id=${n.data.conversation_uid}`} onClick={() => markAsRead(n.id)} className="text-[11px] text-indigo-600 font-semibold hover:underline">Balas →</Link>
                                                                                 )}
                                                                                 <button onClick={() => markAsRead(n.id)} className="text-[11px] text-slate-400 hover:text-slate-600">Tandai dibaca</button>
                                                                             </div>
@@ -303,8 +314,13 @@ function App() {
                             <div className="md:hidden border-t border-white/10 bg-indigo-800/50 backdrop-blur-sm">
                                 <div className="px-4 py-3 space-y-1">
                                     <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 text-sm font-medium text-white hover:bg-white/10 rounded-lg transition">Beranda</Link>
-                                    <Link to="/seller" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 text-sm font-medium text-indigo-200 hover:text-white hover:bg-white/10 rounded-lg transition">Toko Saya</Link>
-                                    {token && <Link to="/chat" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 text-sm font-medium text-indigo-200 hover:text-white hover:bg-white/10 rounded-lg transition">Chat</Link>}
+                                    <Link to="/seller" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 text-sm font-medium text-indigo-200 hover:text-white hover:bg-white/10 rounded-lg transition">{hasStore ? 'Toko Saya' : 'Buat Toko'}</Link>
+                                    {token && (
+                                        <>
+                                            <Link to="/orders" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 text-sm font-medium text-indigo-200 hover:text-white hover:bg-white/10 rounded-lg transition">Pesanan Saya</Link>
+                                            <Link to="/chat" onClick={() => setIsMobileMenuOpen(false)} className="block px-3 py-2 text-sm font-medium text-indigo-200 hover:text-white hover:bg-white/10 rounded-lg transition">Chat</Link>
+                                        </>
+                                    )}
                                     <div className="border-t border-white/10 pt-2 mt-2 flex items-center gap-3">
                                         <button onClick={() => setIsCartOpen(true)} className="flex items-center gap-1.5 text-sm text-indigo-200 px-3 py-2">
                                             <ShoppingCart size={16} /> Keranjang {totalCartItems > 0 && `(${totalCartItems})`}
@@ -334,6 +350,9 @@ function App() {
                         <Route path="/register" element={<Register setToken={setToken} />} />
                         <Route path="/seller" element={<SellerDashboard token={token} />} />
                         <Route path="/chat" element={<Chat />} />
+                        <Route path="/checkout" element={<Checkout />} />
+                        <Route path="/orders" element={<OrderHistory />} />
+                        <Route path="/orders/:uid" element={<OrderDetail />} />
                     </Routes>
                 </main>
 

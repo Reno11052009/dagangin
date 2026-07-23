@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
-import { UserPlus, Mail, Lock, User, Store } from 'lucide-react';
+import { UserPlus, Mail, Lock, User, Store, Eye, EyeOff } from 'lucide-react';
 
 interface AuthProps {
     setToken: (token: string) => void;
@@ -14,6 +14,7 @@ function Register({ setToken }: AuthProps) {
         password: '',
         password_confirmation: ''
     });
+    const [showPassword, setShowPassword] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
     const [errors, setErrors] = useState<any>(null);
     const navigate = useNavigate();
@@ -47,10 +48,10 @@ function Register({ setToken }: AuthProps) {
     };
 
     const fields = [
-        { name: 'name', label: 'Nama Lengkap', type: 'text', icon: <User size={16} />, placeholder: 'John Doe' },
-        { name: 'email', label: 'Alamat Email', type: 'email', icon: <Mail size={16} />, placeholder: 'nama@email.com' },
-        { name: 'password', label: 'Password', type: 'password', icon: <Lock size={16} />, placeholder: 'Min. 8 karakter' },
-        { name: 'password_confirmation', label: 'Konfirmasi Password', type: 'password', icon: <Lock size={16} />, placeholder: 'Ketik ulang password' },
+        { name: 'name', label: 'Nama Lengkap', type: 'text', icon: <User size={16} />, placeholder: 'Masukan Nama Lengkap Anda' },
+        { name: 'email', label: 'Alamat Email', type: 'email', icon: <Mail size={16} />, placeholder: 'Masukan Email Anda' },
+        { name: 'password', label: 'Password', type: showPassword ? 'text' : 'password', icon: <Lock size={16} />, placeholder: 'Min. 8 karakter', isPassword: true },
+        { name: 'password_confirmation', label: 'Konfirmasi Password', type: showPassword ? 'text' : 'password', icon: <Lock size={16} />, placeholder: 'Ketik ulang password', isPassword: true },
     ];
 
     return (
@@ -88,10 +89,19 @@ function Register({ setToken }: AuthProps) {
                                             name={field.name}
                                             required
                                             placeholder={field.placeholder}
-                                            className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all input-glow"
+                                            className={`w-full pl-10 ${field.isPassword ? 'pr-10' : 'pr-4'} py-3 border border-slate-200 rounded-xl text-sm bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent transition-all input-glow`}
                                             value={(formData as any)[field.name]}
                                             onChange={handleChange}
                                         />
+                                        {field.isPassword && (
+                                            <button 
+                                                type="button" 
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                                            >
+                                                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                            </button>
+                                        )}
                                     </div>
                                     {errors?.[field.name] && (
                                         <span className="text-red-500 text-xs mt-1 flex items-center gap-1">

@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { Conversation, Message } from '../types';
 import { Send, ArrowLeft, Store, User as UserIcon, MessageSquare, MoreHorizontal } from 'lucide-react';
 
 function Chat() {
     const navigate = useNavigate();
+    const location = useLocation();
     const [conversations, setConversations] = useState<Conversation[]>([]);
     const [activeConv, setActiveConv] = useState<Conversation | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
@@ -59,6 +60,18 @@ function Chat() {
             const res = await axios.get('/api/conversations');
             setConversations(res.data);
             setLoading(false);
+            
+            // Auto select conversation if conv_id is in URL
+            const searchParams = new URLSearchParams(location.search);
+            const convId = searchParams.get('conv_id');
+            if (convId) {
+                const targetConv = res.data.find((c: Conversation) => c.uid === convId);
+                if (targetConv) {
+                    setActiveConv(targetConv);
+                    // Remove param from URL to avoid re-selecting on refresh unnecessarily
+                    navigate('/chat', { replace: true });
+                }
+            }
         } catch {
             setLoading(false);
         }

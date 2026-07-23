@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\CheckoutController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\StoreController;
+use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\ShippingController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
@@ -46,7 +48,7 @@ Route::post('/register', function (Request $request) {
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
-        return $request->user();
+        return $request->user()->load('store');
     });
 
     Route::post('/logout', function (Request $request) {
@@ -64,8 +66,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/cart/items', [CartController::class, 'addItem']);
     Route::delete('/cart/items/{id}', [CartController::class, 'removeItem']);
 
+    // Shipping API
+    Route::get('/shipping/provinces', [ShippingController::class, 'getProvinces']);
+    Route::get('/shipping/cities/{province}', [ShippingController::class, 'getCities']);
+    Route::get('/shipping/subdistricts/{city}', [ShippingController::class, 'getSubdistricts']);
+    Route::post('/shipping/cost', [ShippingController::class, 'checkCost']);
+
     // Checkout API
     Route::post('/checkout', [CheckoutController::class, 'process']);
+
+    // Order API
+    Route::get('/orders', [OrderController::class, 'index']);
+    Route::get('/orders/{id}', [OrderController::class, 'show']);
 
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index']);

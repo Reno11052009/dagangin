@@ -11,7 +11,7 @@ class Store extends Model
 
     protected $primaryKey = 'uid';
 
-    protected $fillable = ['user_uid', 'name', 'description'];
+    protected $fillable = ['user_uid', 'name', 'description', 'province_id', 'city_id', 'subdistrict_id', 'address'];
 
     public function user()
     {

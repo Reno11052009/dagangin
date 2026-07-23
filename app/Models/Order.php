@@ -11,7 +11,7 @@ class Order extends Model
 
     protected $primaryKey = 'uid';
 
-    protected $fillable = ['user_uid', 'total_price', 'status', 'snap_token', 'address'];
+    protected $fillable = ['user_uid', 'total_price', 'status', 'snap_token', 'address', 'shipping_cost', 'courier'];
 
     public function user()
     {
