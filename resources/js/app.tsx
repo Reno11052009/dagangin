@@ -12,6 +12,7 @@ import Chat from './pages/Chat';
 import OrderHistory from './pages/OrderHistory';
 import OrderDetail from './pages/OrderDetail';
 import Checkout from './pages/Checkout';
+import NotFound from './pages/NotFound';
 import { ShoppingCart, LogIn, LogOut, UserPlus, MessageSquare, Bell, Store, Menu, X, Search, PackageOpen } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { CartItemType, NotificationType } from './types';
@@ -353,6 +354,7 @@ function App() {
                         <Route path="/checkout" element={<Checkout />} />
                         <Route path="/orders" element={<OrderHistory />} />
                         <Route path="/orders/:uid" element={<OrderDetail />} />
+                        <Route path="*" element={<NotFound />} />
                     </Routes>
                 </main>
 
